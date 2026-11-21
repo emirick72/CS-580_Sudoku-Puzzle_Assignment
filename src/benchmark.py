@@ -1,119 +1,91 @@
 
 import copy
-import csv
-from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
-from typing import Callable, List, Optional, Tuple
+from typing import List, Tuple
 from src.board import Grid, format_grid, load_puzzle
 from src.naive_solver import SolverStats, solve_naive_algorithm
 from src.smart_solver import SmartSolverStats, solve_smart_backtracking
 
-SolverFn = Callable[[Grid], Tuple[bool, object]]
-
-@dataclass
-class BenchmarkRow:
-    file: str
-    title: str
-    clues: int
-    solver: str
-    solved: bool
-    valid_solution: bool
-    elapsed_seconds: float
-    recursive_calls: int
-    backtracks: int
-    domain_wipeouts: Optional[int]
-
-def count_clues(grid: Grid) -> int:
+def run_benchmarch(
+        puzzle_dir: str = "puzzles",
+        output_file: str = "benchmark_results.txt"
+) -> None:
     """
-    Counts how many non-zeros numbers are in the initial grid
+    Run naive and smart puzzle solvers; output results to a txt file
     """
-    return sum(1 for row in grid for val in row if val != 0)
-
-def is_valid_solution(initial_grid: Grid, solved_grid: Grid) -> bool:
-    """
-    Verify if there are completed rows, cols, and mini 3x3 grids
-    """
-    expected = set(range(1, 10))
-    for r in range(9):
-        if initial_grid[r][c] != 0 and solved_grid[r][c] != initial_grid[r][c]:
-            return False
-
-    for i in range(9):
-        if {solved_grid[i][c] for c in range(9)} != expected:
-            return False
-        if {solved_grid[r][i] for r in range(9)} != expected:
-            return False
-
-    for box_r in range(0, 9, 3):
-        for box_c in range(0, 9, 3):
-            box_vals = {
-                solved_grid[r][c]
-                for r in range(box_r, box_r + 3)
-                for c in range(box_c, box_c + 3)
-            }
-            if box_vals != expected:
-                return False
-    return True
-
-def run_single_solver(
-        filepath: Path,
-        title: str,
-        initial_grid: Grid,
-        solver_name: str,
-        solver_fn: SolverFn,
-) -> Tuple[BenchmarkRow, Grid]:
-    """
-    Run one solver to solve all puzzles at the same time; collect results and store in a CSV file
-    """
-    working_grid = copy.deepcopy(initial_grid)
-    solved, stats = solver_fn(working_grid)
-    valid = is_valid_solution(initial_grid, working_grid) if solved else False
-
-    if isinstance(stats, (SolverStats, SmartSolverStats)):
-        elapsed = stats.elapsed_seconds
-        calls = stats.recursive_calls
-        backtracks = stats.backtracks
-        wipeouts = (
-            stats.domain_wipeouts if isinstance(stats, SmartSolverStats) else None
-        )
-    else:
-        raise TypeError(f"Unexpected stats object returns by {solver_name}: {type(stats)}")
-
-    row = BenchmarkRow(
-        file=filepath.name,
-        title=title,
-        clues=count_clues(initial_grid),
-        solver=solver_name,
-        solved=solved,
-        valid_solution=valid,
-        elapsed_seconds=elapsed,
-        recursive_calls=calls,
-        backtracks=backtracks,
-        domain_wipeouts=wipeouts
-    )
-    return row, working_grid
-
-def run_benchmark(
-        puzzles_dir: str = "puzzles",
-        csv_output: Optional[str] = "benchmark_results.csv",
-        print_solutions: bool = False
-) -> List[BenchmarkRow]:
-    """
-    Run both naive and smart solvers for all puzzles and output results to a CSV file
-    """
-    puzzle_paths = sorted(Path(puzzles_dir).glob("*.txt"))
+    puzzle_paths = sorted(Path(puzzle_dir).glob("*.txt"))
     if not puzzle_paths:
-        raise FileNotFoundError(f"No .txt puzzle files found in '{puzzles_dir}'")
-    rows: List[BenchmarkRow] = []
-
-    solvers: List[Tuple[str, SolverFn]] = [
-        ("Naive", solve_naive_algorithm)
-        ("Smart (MRV, LCV, and FC)", solve_smart_backtracking)
-    ]
+        raise FileNotFoundError(f"No .txt file found for any puzzles in '{puzzle_dir}/'.")
+    results: List[Tuple[str, str, Grid, Grid, SolverStats, SmartSolverStats]] = []
 
     for path in puzzle_paths:
-        title, inital_grid = load_puzzle(str(path))
-        for solver_name, solver_fr in solvers:
-            row, solved_grid = run_single_solver(
-                path, title, initial_grid, solver_name, solver_fn
-            )
+        title, initial_grid = load_puzzle(str(path))
+        print(f"Benchmarking {path.name} ({title})...")
+
+        naive_grid = copy.deepcopy(initial_grid)
+        _, naive_stats = solve_naive_algorithm(naive_grid)
+
+        smart_grid = copy.deepcopy(initial_grid)
+        _, smart_stats = solve_smart_backtracking(smart_grid)
+
+        results.append(
+            (path.name, title, initial_grid, smart_grid, naive_stats, smart_stats)
+        )
+
+    lines: List[str] = []
+    lines.append("-" * 80)
+    lines.append("SUDOKU CSP BENCHMARK FILE")
+    lines.append("-" * 80)
+    lines.append("")
+
+    # COMPARISON TABLE HERE
+    header = (
+        f"{'Puzzle':<16} | {'Naive Time':>13} | {'Smart Time':>13} | "
+        f"{'Naive Calls':>11} | {'Smart Calls':>11} | {'Naive Backtracking':>9} | {'Smart Backtracking':>9} | {'Wipeouts':>8}"
+    )
+    lines.append(header)
+    lines.append("-" * len(header))
+
+    for filename, title, _, _, naive_stats, smart_stats in results:
+        label = f"{filename[:16]}"
+        lines.append(
+            f"{label:<16} | {naive_stats.elapsed_seconds:>14} | {smart_stats.elapsed_seconds:>14f} | "
+            f"{naive_stats.recursive_calls:>11,d} | {smart_stats.recursive_calls:>11,d} | "
+            f"{naive_stats.backtracks:>9,d} | {smart_stats.backtracks:>8,d} | {smart_stats.domain_wipeouts:>8,d}"
+        )
+    lines.append("")
+    lines.append("=" * 80)
+    lines.append("PUZZLE SOLUTIONS")
+    lines.append("=" * 80)
+
+    for filename, title, initial_grid, solved_grid, naive_stats, smart_stats in results:
+        speedup = (
+            naive_stats.elapsed_seconds / smart_stats.elapsed_seconds
+            if smart_stats.elapsed_seconds > 0
+            else float("inf")
+        )
+        lines.append("")
+        lines.append(f"--- {title}: ({filename}) ---")
+        lines.append(
+            f"Naive: Solved={naive_stats.solved}, Time={naive_stats.elapsed_seconds:.6f}s, "
+            f"Recursive Calls={naive_stats.recursive_calls:,d}, Number of Backtracks={naive_stats.backtracks:,d}"
+        )
+        lines.append(
+            f"Smart: Solved={smart_stats.solved}, Time={smart_stats.elapsed_seconds:.6f}s, "
+            f"Recursive Calls={smart_stats.recursive_calls:,d}, Number of Backtracks={smart_stats.backtracks:,d}, "
+            f"Domain Wipeouts={smart_stats.domain_wipeouts:,d} ({speedup:.1f}x faster)"
+        )
+        lines.append("\nInitial Grid:")
+        lines.append(format_grid(initial_grid))
+        lines.append("\nSolved/Final Grid:")
+        lines.append(format_grid(solved_grid))
+        lines.append("-" * 45)
+
+    report_text = "\n".join(lines) + "\n"
+    print("\n" + report_text)
+    Path(output_file).write_text(report_text, encoding="utf-8")
+    print(f"Saved benchmark output to: {output_file}")
+
+if __name__ == "__main__":
+    run_benchmarch()
