@@ -4,19 +4,19 @@ SUDOKU CSP BENCHMARK FILE
 
 Puzzle           |    Naive Time |    Smart Time | Naive Calls | Smart Calls | Naive Backtracking | Smart Backtracking | Wipeouts
 ---------------------------------------------------------------------------------------------------------------------------------
-easy_01.txt      | 0.0027649999829009175 |       0.001773 |         336 |          46 |       290 |        0 |        0
-evil_01.txt      | 0.016009700018912554 |       0.001541 |       2,063 |          62 |     2,007 |        6 |        1
-hard_01.txt      | 0.027804299956187606 |       0.001614 |       4,830 |         121 |     4,775 |       66 |        7
-medium_01.txt    | 0.0013171000173315406 |       0.000986 |         283 |          61 |       231 |        9 |        2
-sudoku_01.txt    | 0.0015388999599963427 |       0.000855 |         201 |          50 |       151 |        0 |        0
+easy_01.txt      | 0.0010507999686524272 |       0.000500 |         336 |          46 |       290 |        0 |        0
+evil_01.txt      | 0.006257600034587085 |       0.001253 |       2,063 |          62 |     2,007 |        6 |        1
+hard_01.txt      | 0.018403599970042706 |       0.001030 |       4,830 |         121 |     4,775 |       66 |        7
+medium_01.txt    | 0.0009358000243082643 |       0.000579 |         283 |          61 |       231 |        9 |        2
+sudoku_01.txt    | 0.0007802000036463141 |       0.000482 |         201 |          50 |       151 |        0 |        0
 
 ================================================================================
 PUZZLE SOLUTIONS
 ================================================================================
 
 --- Sudoku Easy 01 Puzzle: (easy_01.txt) ---
-Naive: Solved=True, Time=0.002765s, Recursive Calls=336, Number of Backtracks=290
-Smart: Solved=True, Time=0.001773s, Recursive Calls=46, Number of Backtracks=0, Domain Wipeouts=0 (1.6x faster)
+Naive: Solved=True, Time=0.001051s, Recursive Calls=336, Number of Backtracks=290
+Smart: Solved=True, Time=0.000500s, Recursive Calls=46, Number of Backtracks=0, Domain Wipeouts=0 (2.1x faster)
 
 Initial Grid:
 . 1 . | 5 . . | . . 7
@@ -46,8 +46,8 @@ Solved/Final Grid:
 ---------------------------------------------
 
 --- Sudoku Evil 01 Puzzle: (evil_01.txt) ---
-Naive: Solved=True, Time=0.016010s, Recursive Calls=2,063, Number of Backtracks=2,007
-Smart: Solved=True, Time=0.001541s, Recursive Calls=62, Number of Backtracks=6, Domain Wipeouts=1 (10.4x faster)
+Naive: Solved=True, Time=0.006258s, Recursive Calls=2,063, Number of Backtracks=2,007
+Smart: Solved=True, Time=0.001253s, Recursive Calls=62, Number of Backtracks=6, Domain Wipeouts=1 (5.0x faster)
 
 Initial Grid:
 . . . | . . 5 | . 4 7
@@ -77,8 +77,8 @@ Solved/Final Grid:
 ---------------------------------------------
 
 --- Sudoku Hard 01 Puzzle: (hard_01.txt) ---
-Naive: Solved=True, Time=0.027804s, Recursive Calls=4,830, Number of Backtracks=4,775
-Smart: Solved=True, Time=0.001614s, Recursive Calls=121, Number of Backtracks=66, Domain Wipeouts=7 (17.2x faster)
+Naive: Solved=True, Time=0.018404s, Recursive Calls=4,830, Number of Backtracks=4,775
+Smart: Solved=True, Time=0.001030s, Recursive Calls=121, Number of Backtracks=66, Domain Wipeouts=7 (17.9x faster)
 
 Initial Grid:
 . . . | . . . | . . 4
@@ -108,8 +108,8 @@ Solved/Final Grid:
 ---------------------------------------------
 
 --- Sudoku Medium 01 Puzzle: (medium_01.txt) ---
-Naive: Solved=True, Time=0.001317s, Recursive Calls=283, Number of Backtracks=231
-Smart: Solved=True, Time=0.000986s, Recursive Calls=61, Number of Backtracks=9, Domain Wipeouts=2 (1.3x faster)
+Naive: Solved=True, Time=0.000936s, Recursive Calls=283, Number of Backtracks=231
+Smart: Solved=True, Time=0.000579s, Recursive Calls=61, Number of Backtracks=9, Domain Wipeouts=2 (1.6x faster)
 
 Initial Grid:
 . . . | 8 1 . | . 3 6
@@ -139,8 +139,8 @@ Solved/Final Grid:
 ---------------------------------------------
 
 --- Sudoku 01 Puzzle: (sudoku_01.txt) ---
-Naive: Solved=True, Time=0.001539s, Recursive Calls=201, Number of Backtracks=151
-Smart: Solved=True, Time=0.000855s, Recursive Calls=50, Number of Backtracks=0, Domain Wipeouts=0 (1.8x faster)
+Naive: Solved=True, Time=0.000780s, Recursive Calls=201, Number of Backtracks=151
+Smart: Solved=True, Time=0.000482s, Recursive Calls=50, Number of Backtracks=0, Domain Wipeouts=0 (1.6x faster)
 
 Initial Grid:
 . . 3 | . 2 . | 6 . .
