@@ -22,17 +22,20 @@ def build_peers() -> Dict[Coord, List[Coord]]:
     for r in range(9):
         for c in range(9):
             peer_set: Set[Coord] = set()
-            if i != c:
-                peer_set.add((r, i))
-            if i != r:
-                peer_set.add((i, c))
 
-        box_r0, box_c0 = (r // 3) * 3, (c // 3) * 3
-        for br in range(box_r0, box_r0 + 3):
-            for bc in range(box_c0, box_c0 + 3):
-                if (br, bc) != (r, c):
-                    peer_set.add((br, bc))
-        peers[(r, c)] = sorted(peer_set)
+            for i in range(9):
+                if i != c:
+                    peer_set.add((r, i))
+                if i != r:
+                    peer_set.add((i, c))
+
+            box_r0, box_c0 = (r // 3) * 3, (c // 3) * 3
+            for br in range(box_r0, box_r0 + 3):
+                for bc in range(box_c0, box_c0 + 3):
+                    if (br, bc) != (r, c):
+                        peer_set.add((br, bc))
+
+            peers[(r, c)] = sorted(peer_set)
     return peers
 
 PEERS: Dict[Coord, List[Coord]] = build_peers()
