@@ -11,6 +11,8 @@ The difficulty levels are as follows:
 * Sudoku 01 (given example)
 
 The program uses both a naive and smart backtracking algorithms to solve the puzzles. The smart backtracking using minimum remaining values (MRV), least constraining value (LCV), and forward checking (FC) in order to solve the puzzles.
+
+
 --------------------------------
 ## How to execute:
 * Clone this repo from GitHub using `git clone https://github.com/emirick72/CS-580_Sudoku-Puzzle_Assignment.git`
